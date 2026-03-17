@@ -2,7 +2,7 @@
 
 VRChatワールド用の入退室通知システムです。
 
-このギミックを利用するには[Canvas Animation System](https://github.com/puk06/CanvasAnimationSystem)を予めインストールする必要があります。
+このギミックを利用するには[Canvas Animation System](https://github.com/puk06/CanvasAnimationSystem)を予め導入する必要があります。
 
 ## Settings
 
@@ -18,11 +18,13 @@ VRChatワールド用の入退室通知システムです。
 - Fade In From Right
 - Fade In From Below
 
-Popはスケールを利用しています。
+ただいまPopが大変重くなっております。
+
+下のAllow Multiple Notificationsは、必ずオフにしてください。
 
 ### Allow Multiple Notifications
 
-同時に複数人が入退室した場合では、複数（最大Notificationオブジェクト-1）の通知が重ねて表示されます。
+同時に複数人が入退室した場合では、複数（Notificationオブジェクトの数）の通知が重ねて表示されます。
 
 バックグラウンドがない場合では、文字が重ねて表示されるため、読みにくくなる場合があります。
 

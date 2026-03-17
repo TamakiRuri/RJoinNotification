@@ -176,7 +176,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4714428573277268474}
-  maxConcurrentAnimations: 64
+  maxConcurrentAnimations: 128
   runningAnimations: 0
   peakConcurrentAnimations: 0
 --- !u!114 &4714428573277268474

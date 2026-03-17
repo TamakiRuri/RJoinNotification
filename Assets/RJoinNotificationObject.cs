@@ -20,7 +20,7 @@ namespace com.rurinya.joinnotification
         [Header("スペースが文字数で変わらないため、文字数が多くなると表示がおかしくなる場合があります。")]
         [SerializeField] private string joinText = "Join";
         [SerializeField] private string exitText = "Exit";
-        [Space(10)]
+        [Space(20)]
         [Header("アニメーションの長さなど")]
         [SerializeField] private float transitionInTime = 0.4f;
         [SerializeField] private float transitionOutTime = 0.4f;
@@ -28,16 +28,21 @@ namespace com.rurinya.joinnotification
         // [SerializeField] private bool allowTextAnimation = true;
         // [SerializeField] private float intervalPerChar = 0.1f;
         [SerializeField] private int popModeOffset = 120;
-        [Space(10)]
+        [Header("Alphaを0のままにしてください。")]
+        [Header("実際に表示されるAlpha値は1になります。")]
+        [SerializeField] private Color joinInfoColor;
+        [SerializeField] private Color exitInfoColor;
+        [Space(20)]
+        [Header("オブジェクトレファレンス")]
         [SerializeField] private Image background;
         [SerializeField] private Image statusBubble;
 
+        [Header("変数名にTMPが含まれていますが、TMProを利用しておりません。")]
         [SerializeField] private Text joinTextTMP;
         [SerializeField] private Text exitTextTMP;
         [SerializeField] private Text usernameTMP;
         
-        [SerializeField] private Color joinInfoColor;
-        [SerializeField] private Color exitInfoColor;
+
         [SerializeField] private CanvasAnimationSystem canvasAnimationSystem;
 
         private Component[] animatedComponents;
@@ -194,10 +199,20 @@ namespace com.rurinya.joinnotification
         }
         private void AnimPop()
         {
+            // background.color = new Color(background.color.r, background.color.g, background.color.b, 1);
+            // usernameTMP.color = new Color(usernameTMP.color.r, usernameTMP.color.g, usernameTMP.color.b, 1);
+            // statusBubble.color = new Color(statusBubble.color.r, statusBubble.color.g, statusBubble.color.b, 1);
+            // joinTextTMP.color = new Color(joinTextTMP.color.r, joinTextTMP.color.g, joinTextTMP.color.b, 1);
+            // exitTextTMP.color = new Color(exitTextTMP.color.r, exitTextTMP.color.g, exitTextTMP.color.b, 1);
             targetScale = new Vector3((float)1.2*defaultScale.x, (float)1.2*defaultScale.y,(float)1.2*defaultScale.z);
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
                 .ResetTransform(animatedComponents, new TransformType[] {TransformType.Scale})
+                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
                 .Scale(animatedComponents, transitionInTime, 0, AnimationDirection.From, new Vector3(0,0,0), TransitionType.EaseInOut)
                 .Move(background, transitionInTime, 0, defaultBGPosition, MoveDirection.Right, TransitionType.EaseInOut)
                 .Move(usernameTMP, transitionInTime, 0, defaultUsernamePosition, MoveDirection.Right, TransitionType.EaseInOut)
@@ -206,6 +221,11 @@ namespace com.rurinya.joinnotification
                 .Move(exitTextTMP, transitionInTime, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
                 //.Scale(animatedComponents, transitionInTime*0.2f, transitionInTime, AnimationDirection.To, targetScale, TransitionType.Linear)
                 //.Scale(animatedComponents, 0.1f, 0, AnimationDirection.From, targetScale, TransitionType.EaseInOut)
+                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
                 .Scale(animatedComponents, transitionOutTime, stayTime+transitionInTime, AnimationDirection.To, new Vector3(0,0,0), TransitionType.EaseInOut)
                 .MoveTo(background, transitionOutTime, stayTime+transitionInTime, defaultBGPosition, MoveDirection.Left, TransitionType.EaseInOut)
                 .MoveTo(usernameTMP, transitionOutTime, stayTime+transitionInTime, defaultUsernamePosition, MoveDirection.Left, TransitionType.EaseInOut)

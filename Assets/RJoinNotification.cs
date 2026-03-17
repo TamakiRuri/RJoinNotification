@@ -73,10 +73,11 @@ namespace com.rurinya.joinnotification
         {
             if (!allowMultipleNotifications)
             {
-                if (!notification[0].activeSelf) return notification[0];
-                else return notification[1];
+                // if (!notification[0].activeSelf) 
+                    return notification[0];
+                // else return notification[1];
             }
-            if(notificationIndex >= notification.Length) notificationIndex = 1;
+            if(notificationIndex >= notification.Length) notificationIndex = 0;
             return notification[notificationIndex++];
             
             
