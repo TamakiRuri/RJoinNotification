@@ -15,4 +15,3 @@ namespace com.rurinya.joinnotification
         private void SendEvent() => targetBehavior.SendCustomEvent(targetEventName);
     }
 }
-

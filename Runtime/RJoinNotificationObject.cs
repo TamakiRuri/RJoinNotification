@@ -68,16 +68,14 @@ namespace com.rurinya.joinnotification
             joinNotificationColor = joinColor;
             exitMessageColor = exitColor;
 
-            if (background != null && statusBubble != null && joinText != null && exitText != null && usernameText != null)
+            if (background == null || statusBubble == null || joinText == null || exitText == null || usernameText == null)
             {
-                animatedComponents = new Component[] { background, statusBubble, joinText, exitText, usernameText };
-            }
-            else
-            {
-                Debug.LogError("RJoinNotification: アニメーションで使用されるコンポーネントが初期化されていません。");
+                Debug.LogError("RJoinNotification: すべてのコンポーネントが正しく設定されていません。");
                 gameObject.SetActive(false);
                 return;
             }
+
+            animatedComponents = new Component[] { background, statusBubble, joinText, exitText, usernameText };
 
             defaultUsernamePosition = (int)usernameText.gameObject.GetComponent<RectTransform>().anchoredPosition.x - joinNotificationPopOffset;
             defaultBGPosition = (int)background.gameObject.GetComponent<RectTransform>().anchoredPosition.x - joinNotificationPopOffset;
@@ -233,7 +231,6 @@ namespace com.rurinya.joinnotification
                 .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
                 .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
-
         private void AnimFadeInRight()
         {
             canvasAnimationSystem
@@ -251,7 +248,6 @@ namespace com.rurinya.joinnotification
                 .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
                 .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
-
         private void AnimFadeInDown()
         {
             canvasAnimationSystem
@@ -271,5 +267,4 @@ namespace com.rurinya.joinnotification
         }
         #endregion
     }
-
 }
