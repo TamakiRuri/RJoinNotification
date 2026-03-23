@@ -49,13 +49,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: joinText
+      Data: joinNotificationText
     - Name: $v
       Entry: 7
       Data: 2|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: joinText
+      Data: joinNotificationText
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 3|System.RuntimeType, mscorlib
@@ -127,13 +127,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: exitText
+      Data: exitNotificationText
     - Name: $v
       Entry: 7
       Data: 8|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: exitText
+      Data: exitNotificationText
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 3
