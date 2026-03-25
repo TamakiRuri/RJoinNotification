@@ -1,42 +1,49 @@
-﻿
-using System;
+﻿using System;
 using net.puk06.CanvasAnimation;
 using net.puk06.CanvasAnimation.Models;
-using net.puk06.CanvasAnimation.Utils;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace com.rurinya.joinnotification
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class RJoinNotificationObject : UdonSharpBehaviour
     {
-        private string joinText = "Join";
-        private string exitText = "Exit";
-        private float transitionInTime = 0.4f;
-        private float transitionOutTime = 0.4f;
-        private float stayTime = 1f;
+        private string joinNotificationText = "Join";
+        private string exitNotificationText = "Exit";
+
+        private float fadeInDuration = 0.4f;
+        private float fadeOutDuration = 0.4f;
+        private float durationBeforeRemoval = 1f;
+
         // [SerializeField] private bool allowTextAnimation = true;
         // [SerializeField] private float intervalPerChar = 0.1f;
-        private int popModeOffset = 120;
-        private Color joinInfoColor;
-        private Color exitInfoColor;
+
+        private int joinNotificationPopOffset = 120;
+        private Color joinNotificationColor;
+        private Color exitMessageColor;
+
         [Header("オブジェクトレファレンス")]
         [SerializeField] private Image background;
         [SerializeField] private Image statusBubble;
 
-        [Header("変数名にTMPが含まれていますが、TMProを利用しておりません。")]
-        [SerializeField] private Text joinTextTMP;
-        [SerializeField] private Text exitTextTMP;
-        [SerializeField] private Text usernameTMP;
-        
+        [SerializeField]
+        [FormerlySerializedAs("joinTextTMP")]
+        private Text joinText;
+
+        [SerializeField]
+        [FormerlySerializedAs("exitTextTMP")]
+        private Text exitText;
+
+        [SerializeField]
+        [FormerlySerializedAs("usernameTMP")]
+        private Text usernameText;
 
         [SerializeField] private CanvasAnimationSystem canvasAnimationSystem;
 
-        private Component[] animatedComponents;
+        private Component[] notificationAnimationComponents;
         private Vector3 defaultScale;
         private Vector3 targetScale;
 
@@ -45,7 +52,6 @@ namespace com.rurinya.joinnotification
         private int defaultBGPosition;
         private int defaultStatusPosition;
 
-
         // Text Animation
 
         // private float timeStamp;
@@ -53,63 +59,59 @@ namespace com.rurinya.joinnotification
         // private int animIndex;
         public void Setup(string join, string exit, int offset, float transitionIn, float transitionOut, float transitionStay, Color joinColor, Color exitColor)
         {
-            joinText = join;
-            exitText = exit;
-            popModeOffset = offset;
-            transitionInTime = transitionIn;
-            transitionOutTime = transitionOut;
-            stayTime = transitionStay;
-            joinInfoColor = joinColor;
-            exitInfoColor = exitColor;
+            joinNotificationText = join;
+            exitNotificationText = exit;
+            joinNotificationPopOffset = offset;
+            fadeInDuration = transitionIn;
+            fadeOutDuration = transitionOut;
+            durationBeforeRemoval = transitionStay;
+            joinNotificationColor = joinColor;
+            exitMessageColor = exitColor;
 
-            if (background!= null && statusBubble != null && joinTextTMP != null && exitTextTMP != null && usernameTMP != null)
-                animatedComponents = new Component[] {background, statusBubble, joinTextTMP, exitTextTMP,  usernameTMP};
-            else
+            if (background == null || statusBubble == null || joinText == null || exitText == null || usernameText == null)
             {
-                Debug.LogError("RJoinNotification: アニメーションで使用されるコンポーネントが初期化されていません。");
+                Debug.LogError("RJoinNotification: すべてのコンポーネントが正しく設定されていません。");
                 gameObject.SetActive(false);
                 return;
             }
-            
-            defaultUsernamePosition = (int)usernameTMP.gameObject.GetComponent<RectTransform>().anchoredPosition.x - popModeOffset;
-            defaultBGPosition = (int)background.gameObject.GetComponent<RectTransform>().anchoredPosition.x - popModeOffset;
-            defaultStatusPosition = Math.Abs((int)statusBubble.gameObject.GetComponent<RectTransform>().anchoredPosition.x) + popModeOffset;
 
-            
+            notificationAnimationComponents = new Component[] { background, statusBubble, joinText, exitText, usernameText };
+
+            defaultUsernamePosition = (int)usernameText.gameObject.GetComponent<RectTransform>().anchoredPosition.x - joinNotificationPopOffset;
+            defaultBGPosition = (int)background.gameObject.GetComponent<RectTransform>().anchoredPosition.x - joinNotificationPopOffset;
+            defaultStatusPosition = Math.Abs((int)statusBubble.gameObject.GetComponent<RectTransform>().anchoredPosition.x) + joinNotificationPopOffset;
+
             defaultScale = background.transform.localScale;
             canvasAnimationSystem
-                .DefineTransform(animatedComponents, new Vector3(1,1,1), TransformType.Scale)
-                .SaveTransform(animatedComponents, new TransformType[]{TransformType.Position})
+                .DefineTransform(notificationAnimationComponents, new Vector3(1, 1, 1), TransformType.Scale)
+                .SaveTransform(notificationAnimationComponents, new TransformType[] { TransformType.Position })
                 .Hide(background)
                 .Hide(statusBubble)
-                .Hide(joinTextTMP)
-                .Hide(exitTextTMP)
-                .Hide(usernameTMP);
+                .Hide(joinText)
+                .Hide(exitText)
+                .Hide(usernameText);
         }
 
         public void StartAnimation(bool status, string username, bool hasBackground, int mode)
         {
             background.gameObject.SetActive(hasBackground);
-            if (status == true){
-                joinTextTMP.text=joinText;
-                joinTextTMP.gameObject.SetActive(true);
-                exitTextTMP.gameObject.SetActive(false);
 
-                statusBubble.color = joinInfoColor;
-            }
-            else {
-                exitTextTMP.text=exitText;
-                joinTextTMP.gameObject.SetActive(false);
-                exitTextTMP.gameObject.SetActive(true);
+            joinText.gameObject.SetActive(status);
+            exitText.gameObject.SetActive(!status);
 
-                statusBubble.color = exitInfoColor;
+            if (status == true)
+            {
+                joinText.text = joinNotificationText;
+                statusBubble.color = joinNotificationColor;
             }
-            usernameTMP.text = username;
+            else
+            {
+                exitText.text = exitNotificationText;
+                statusBubble.color = exitMessageColor;
+            }
+
+            usernameText.text = username;
             AnimationController(mode);
-        }
-        void Start()
-        {
-            
         }
         // void Update()
         // {
@@ -128,7 +130,7 @@ namespace com.rurinya.joinnotification
         private void AnimationController(int mode)
         {
             canvasAnimationSystem
-                .Cancel(animatedComponents);
+                .Cancel(notificationAnimationComponents);
             // Not In Use
             // if(allowTextAnimation)
             // {
@@ -159,24 +161,22 @@ namespace com.rurinya.joinnotification
             }
         }
 
-
-        // CANVAS ANIMATION SYSTEM
-
+        #region CanvasAnimationSystem Animations
         private void AnimFadeIn()
         {
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
-                .ResetTransform(animatedComponents, new TransformType[] {TransformType.Position})
-                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut);
+                .ResetTransform(notificationAnimationComponents, new TransformType[] { TransformType.Position })
+                .Fade(background, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
         private void AnimPop()
         {
@@ -185,88 +185,86 @@ namespace com.rurinya.joinnotification
             // statusBubble.color = new Color(statusBubble.color.r, statusBubble.color.g, statusBubble.color.b, 1);
             // joinTextTMP.color = new Color(joinTextTMP.color.r, joinTextTMP.color.g, joinTextTMP.color.b, 1);
             // exitTextTMP.color = new Color(exitTextTMP.color.r, exitTextTMP.color.g, exitTextTMP.color.b, 1);
-            targetScale = new Vector3((float)1.2*defaultScale.x, (float)1.2*defaultScale.y,(float)1.2*defaultScale.z);
+            targetScale = new Vector3((float)1.2 * defaultScale.x, (float)1.2 * defaultScale.y, (float)1.2 * defaultScale.z);
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
-                .ResetTransform(animatedComponents, new TransformType[] {TransformType.Scale})
-                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Scale(animatedComponents, transitionInTime, 0, AnimationDirection.From, new Vector3(0,0,0), TransitionType.EaseInOut)
-                .Move(background, transitionInTime, 0, defaultBGPosition, MoveDirection.Right, TransitionType.EaseInOut)
-                .Move(usernameTMP, transitionInTime, 0, defaultUsernamePosition, MoveDirection.Right, TransitionType.EaseInOut)
-                .Move(statusBubble, transitionInTime, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
-                .Move(joinTextTMP, transitionInTime, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
-                .Move(exitTextTMP, transitionInTime, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
-                //.Scale(animatedComponents, transitionInTime*0.2f, transitionInTime, AnimationDirection.To, targetScale, TransitionType.Linear)
-                //.Scale(animatedComponents, 0.1f, 0, AnimationDirection.From, targetScale, TransitionType.EaseInOut)
-                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Scale(animatedComponents, transitionOutTime, stayTime+transitionInTime, AnimationDirection.To, new Vector3(0,0,0), TransitionType.EaseInOut)
-                .MoveTo(background, transitionOutTime, stayTime+transitionInTime, defaultBGPosition, MoveDirection.Left, TransitionType.EaseInOut)
-                .MoveTo(usernameTMP, transitionOutTime, stayTime+transitionInTime, defaultUsernamePosition, MoveDirection.Left, TransitionType.EaseInOut)
-                .MoveTo(statusBubble, transitionOutTime, stayTime+transitionInTime, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut)
-                .MoveTo(joinTextTMP, transitionOutTime, stayTime+transitionInTime, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut)
-                .MoveTo(exitTextTMP, transitionOutTime, stayTime+transitionInTime, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut);
+                .ResetTransform(notificationAnimationComponents, new TransformType[] { TransformType.Scale })
+                .Fade(background, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Scale(notificationAnimationComponents, fadeInDuration, 0, AnimationDirection.From, new Vector3(0, 0, 0), TransitionType.EaseInOut)
+                .Move(background, fadeInDuration, 0, defaultBGPosition, MoveDirection.Right, TransitionType.EaseInOut)
+                .Move(usernameText, fadeInDuration, 0, defaultUsernamePosition, MoveDirection.Right, TransitionType.EaseInOut)
+                .Move(statusBubble, fadeInDuration, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
+                .Move(joinText, fadeInDuration, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
+                .Move(exitText, fadeInDuration, 0, defaultStatusPosition, MoveDirection.Left, TransitionType.EaseInOut)
+                //.Scale(notificationAnimationComponents, transitionInTime*0.2f, transitionInTime, AnimationDirection.To, targetScale, TransitionType.Linear)
+                //.Scale(notificationAnimationComponents, 0.1f, 0, AnimationDirection.From, targetScale, TransitionType.EaseInOut)
+                .Fade(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Scale(notificationAnimationComponents, fadeOutDuration, durationBeforeRemoval + fadeInDuration, AnimationDirection.To, new Vector3(0, 0, 0), TransitionType.EaseInOut)
+                .MoveTo(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, defaultBGPosition, MoveDirection.Left, TransitionType.EaseInOut)
+                .MoveTo(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, defaultUsernamePosition, MoveDirection.Left, TransitionType.EaseInOut)
+                .MoveTo(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut)
+                .MoveTo(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut)
+                .MoveTo(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, defaultStatusPosition, MoveDirection.Right, TransitionType.EaseInOut);
         }
         private void AnimFadeInLeft()
         {
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
-                .ResetTransform(animatedComponents, new TransformType[] {TransformType.Position})
-                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Move(animatedComponents, transitionInTime, 0, 200, MoveDirection.Right, TransitionType.EaseInOut )
-                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut);
+                .ResetTransform(notificationAnimationComponents, new TransformType[] { TransformType.Position })
+                .Fade(background, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Move(notificationAnimationComponents, fadeInDuration, 0, 200, MoveDirection.Right, TransitionType.EaseInOut)
+                .Fade(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
-
         private void AnimFadeInRight()
         {
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
-                .ResetTransform(animatedComponents, new TransformType[] {TransformType.Position})
-                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Move(animatedComponents, transitionInTime, 0, 200, MoveDirection.Left, TransitionType.EaseInOut )
-                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut);
+                .ResetTransform(notificationAnimationComponents, new TransformType[] { TransformType.Position })
+                .Fade(background, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Move(notificationAnimationComponents, fadeInDuration, 0, 200, MoveDirection.Left, TransitionType.EaseInOut)
+                .Fade(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
-
         private void AnimFadeInDown()
         {
             canvasAnimationSystem
                 // .Cancel(animatedComponents)
-                .ResetTransform(animatedComponents, new TransformType[] {TransformType.Position})
-                .Fade(background, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionInTime, 0, FadeType.In, TransitionType.EaseInOut)
-                .Move(animatedComponents, transitionInTime, 0, 50, MoveDirection.Up, TransitionType.EaseInOut )
-                .Fade(background, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(statusBubble, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(joinTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(exitTextTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut)
-                .Fade(usernameTMP, transitionOutTime, stayTime+transitionInTime, FadeType.Out, TransitionType.EaseInOut);
+                .ResetTransform(notificationAnimationComponents, new TransformType[] { TransformType.Position })
+                .Fade(background, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(joinText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(exitText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeInDuration, 0, FadeType.In, TransitionType.EaseInOut)
+                .Move(notificationAnimationComponents, fadeInDuration, 0, 50, MoveDirection.Up, TransitionType.EaseInOut)
+                .Fade(background, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(statusBubble, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(joinText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(exitText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut)
+                .Fade(usernameText, fadeOutDuration, durationBeforeRemoval + fadeInDuration, FadeType.Out, TransitionType.EaseInOut);
         }
+        #endregion
     }
-
 }

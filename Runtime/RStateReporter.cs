@@ -1,9 +1,6 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
 using VRC.Udon;
-
 
 namespace com.rurinya.joinnotification
 {
@@ -11,18 +8,10 @@ namespace com.rurinya.joinnotification
     {
         [SerializeField] private UdonBehaviour targetBehavior;
         [SerializeField] private string targetEventName;
-        void Start()
-        {
-            
-        }
-        void OnEnable()
-        {
-            targetBehavior.SendCustomEvent(targetEventName);
-        }
-        void OnDisable()
-        {
-            targetBehavior.SendCustomEvent(targetEventName);
-        }
+
+        void OnEnable() => SendEvent();
+        void OnDisable() => SendEvent();
+
+        private void SendEvent() => targetBehavior.SendCustomEvent(targetEventName);
     }
 }
-

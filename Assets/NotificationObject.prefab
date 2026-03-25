@@ -451,19 +451,11 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7078300591508023818}
-  joinText: Join
-  exitText: Exit
-  transitionInTime: 0.4
-  transitionOutTime: 0.4
-  stayTime: 1
-  popModeOffset: 120
-  joinInfoColor: {r: 0.5695626, g: 1, b: 0.514151, a: 0}
-  exitInfoColor: {r: 1, g: 0.3537736, b: 0.3537736, a: 0}
   background: {fileID: 4568135123074455526}
   statusBubble: {fileID: 8258067470798106875}
-  joinTextTMP: {fileID: 6018560138181725197}
-  exitTextTMP: {fileID: 1030623592140357696}
-  usernameTMP: {fileID: 7859915591978859929}
+  joinText: {fileID: 6018560138181725197}
+  exitText: {fileID: 1030623592140357696}
+  usernameText: {fileID: 7859915591978859929}
   canvasAnimationSystem: {fileID: 0}
 --- !u!114 &7078300591508023818
 MonoBehaviour:
