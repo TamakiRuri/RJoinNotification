@@ -34,7 +34,7 @@ namespace com.rurinya.joinnotification
         [Header("バックグラウンド有効")]
         [SerializeField] private bool hasBackground = true;
 
-        [Header("オーディオだけにする")]
+        [Header("音声だけにする")]
         [SerializeField] private bool audioOnly;
 
         [Header("アニメーションのモード")]
@@ -66,10 +66,11 @@ namespace com.rurinya.joinnotification
             defaultScale = gameObject.transform.localScale;
             maxNotificationIndex = notification.Length;
             
-            if (maxNotificationIndex < 2)
+            if (maxNotificationIndex < 1)
             {
                 Debug.LogError("RJoinNotification: Notificationオブジェクトがありません");
                 gameObject.SetActive(false);
+                return;
             }
 
             EyeHeightSetup();
@@ -110,17 +111,6 @@ namespace com.rurinya.joinnotification
             if (notificationIndex >= notification.Length) notificationIndex = 0;
             return notification[notificationIndex++];
         }
-        // public void OverflowRecordCleanUp()
-        // {
-        //     for(int i = 0; i < maxNotificationIndex; i++)
-        //     {
-        //         if (notification[i].GetComponent<RJoinNotificationObject>().isActive){
-        //             continue;
-        //         }
-        //         else return;
-        //     }
-        //     notificationIndex = 0;
-        // }
         public override void OnPlayerJoined(VRCPlayerApi player) => SendNotification(true, player.displayName);
         public override void OnPlayerLeft(VRCPlayerApi player) => SendNotification(false, player.displayName);
         private void SendNotification(bool state, string username)
