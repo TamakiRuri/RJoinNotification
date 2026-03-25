@@ -4,7 +4,7 @@ VRChatワールド用の入退室通知システムです。
 
 このギミックを利用するには[Canvas Animation System](https://github.com/puk06/CanvasAnimationSystem)を予め導入する必要があります。
 
-導入するには、VPMをご利用ください。
+このギミックを導入するには、VPMをご利用ください。
 
 https://vpm.rurinya.com/vpm.json
 
