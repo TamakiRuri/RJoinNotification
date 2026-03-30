@@ -1,7 +1,7 @@
 {
   "name": "com.rurinya.joinnotification",
   "displayName": "RJoinNotification",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "author": {
     "name": "RuriNya",
     "email": "rurinyavr@outlook.com"
@@ -13,7 +13,7 @@
     "net.puk06.canvas-animation-system" : ">=0.2.0"
   },
   "license" : "MIT",
-  "url" : "https://github.com/TamakiRuri/RJoinNotification/releases/download/Beta-8/RJoinNotification-beta8.zip?",
+  "url" : "https://github.com/TamakiRuri/RJoinNotification/releases/download/1.0.0/RJoinNotification-1.0.0.zip?",
   "legacyFolders" : {
     "Assets\\StudioSaphir\\RJoinNotification" : "97f94d9de419c5647b8bc981b10d4448"
   }

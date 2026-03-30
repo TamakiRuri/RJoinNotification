@@ -52,6 +52,9 @@ namespace com.rurinya.joinnotification
 
         [Header("通知オブジェクト。通常では編集する必要がありません。")]
         [SerializeField] private GameObject[] notification;
+
+        [Header("テスト関数でのみ動作することになります")]
+        [SerializeField] private bool testMode = false;
         
         private bool isMuted = false;
 
@@ -111,8 +114,14 @@ namespace com.rurinya.joinnotification
             if (notificationIndex >= notification.Length) notificationIndex = 0;
             return notification[notificationIndex++];
         }
-        public override void OnPlayerJoined(VRCPlayerApi player) => SendNotification(true, player.displayName);
-        public override void OnPlayerLeft(VRCPlayerApi player) => SendNotification(false, player.displayName);
+        public override void OnPlayerJoined(VRCPlayerApi player)
+        {
+            if (!testMode)SendNotification(true, player.displayName);
+        }
+        public override void OnPlayerLeft(VRCPlayerApi player)
+        {
+            if(!testMode)SendNotification(false, player.displayName);
+        }
         private void SendNotification(bool state, string username)
         {
             if (!gameObject.GetComponent<AudioSource>().isPlaying && !isMuted)
@@ -140,6 +149,11 @@ namespace com.rurinya.joinnotification
         {
             isMuted = !isMuted;
             Debug.Log("RJoinNotification: Mute Mode: " + isMuted);
+        }
+        public void SetAudioOnly()
+        {
+            audioOnly = !audioOnly;
+            Debug.Log("RJoinNotification: Audio Only: " + audioOnly);
         }
 
 #region Test Code
