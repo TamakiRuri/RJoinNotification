@@ -277,10 +277,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7374717930035778624, guid: b3be0e7c1c5b6154c81d1dc990a4305b, type: 3}
     - target: {fileID: 7630459134480580511, guid: b3be0e7c1c5b6154c81d1dc990a4305b, type: 3}
-      propertyPath: joinSound
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7630459134480580511, guid: b3be0e7c1c5b6154c81d1dc990a4305b, type: 3}
       propertyPath: animationMode
       value: 3
       objectReference: {fileID: 0}

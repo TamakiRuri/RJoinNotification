@@ -140,8 +140,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 765570594263894788}
-  joinText: Join
-  exitText: Exit
+  joinNotificationText: Join
+  exitNotificationText: Exit
   joinInfoColor: {r: 0.5686275, g: 1, b: 0.5137255, a: 0}
   exitInfoColor: {r: 1, g: 0.3254717, b: 0.3254717, a: 0}
   transitionInTime: 0.4
@@ -152,7 +152,7 @@ MonoBehaviour:
   animationMode: 0
   popModeOffset: 120
   allowMultipleNotifications: 1
-  joinSound: {fileID: 0}
+  joinSound: {fileID: 8300000, guid: d19b33777ec51604ab4fdd8d306b44be, type: 3}
   exitSound: {fileID: 0}
   notification:
   - {fileID: 4177949245927840164}
@@ -160,6 +160,7 @@ MonoBehaviour:
   - {fileID: 7969945565594152430}
   - {fileID: 2038846821782481757}
   - {fileID: 6120330973251120876}
+  testMode: 0
 --- !u!114 &765570594263894788
 MonoBehaviour:
   m_ObjectHideFlags: 0
